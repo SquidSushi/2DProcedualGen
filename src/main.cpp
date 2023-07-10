@@ -4,11 +4,16 @@
 
 #include "config.h"
 
+const int worldWidth 256;
+const int worldHeight = 128;
+
 int main() {
     // Raylib initialization
     // Project name, screen size, fullscreen mode etc. can be specified in the config.h.in file
-    InitWindow(Game::ScreenWidth, Game::ScreenHeight, Game::PROJECT_NAME);
+    InitWindow(1024,512);
     SetTargetFPS(60);
+
+
 
 #ifdef GAME_START_FULLSCREEN
     ToggleFullscreen();
