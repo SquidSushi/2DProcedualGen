@@ -1,18 +1,19 @@
 ﻿#include <cstdlib>
 
 #include "raylib.h"
+#include "GameWorld.h"
 
 #include "config.h"
 
-const int worldWidth 256;
+const int worldWidth = 256;
 const int worldHeight = 128;
 
 int main() {
     // Raylib initialization
     // Project name, screen size, fullscreen mode etc. can be specified in the config.h.in file
-    InitWindow(1024,512);
+    InitWindow(1024,512,"The thingy");
     SetTargetFPS(60);
-
+    GameWorld* theWorld = new GameWorld(std::rand(),512,256);
 
 
 #ifdef GAME_START_FULLSCREEN
@@ -35,9 +36,9 @@ int main() {
             // You can draw on the screen between BeginDrawing() and EndDrawing()
             // ...
             // ...
+            theWorld->draw(false);
             ClearBackground(WHITE);
             DrawText("Hello, world!", 10, 10, 30, LIGHTGRAY);
-            DrawTexture(myTexture, 10, 100, WHITE);
 
         EndDrawing();
     } // Main game loop end
