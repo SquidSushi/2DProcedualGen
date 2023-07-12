@@ -5,7 +5,7 @@
 #include "GameWorld.h"
 
 #include "config.h"
-
+#include "math.h"
 
 
 int main() {
@@ -31,8 +31,8 @@ int main() {
         DrawRectangle(10,40,40,40,doSlowGen?GREEN:RED);
         EndDrawing();
     }
-    SetRandomSeed(time(nullptr));
-    GameWorld* theWorld = new GameWorld(GetRandomValue(0, 1024*32),GetScreenWidth(),GetScreenHeight());
+    SetRandomSeed(GetRandomValue(0,pow(2,20)));
+    GameWorld* theWorld = new GameWorld(GetRandomValue(0, 1024*1024),GetScreenWidth(),GetScreenHeight());
     SetTargetFPS(0);
     theWorld->genWorld(doSlowGen);
     SetTargetFPS(60);
@@ -45,7 +45,7 @@ int main() {
     // ...
     // ...
     Texture2D myTexture = LoadTexture("assets/graphics/testimage.png");
-
+    Camera2D mainCam = {{},{},0,1};
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
@@ -55,14 +55,31 @@ int main() {
             theWorld->setSeed(theWorld->getSeed()+16);
             theWorld->genWorld(false);
         }
+        if (IsKeyPressed(KEY_P)){
+            mainCam.zoom += 0.25;
+        }
+        if (IsKeyPressed(KEY_M)){
+            mainCam.zoom -= 0.25;
+        }
+        if (IsKeyDown(KEY_LEFT)){
+            mainCam.target.x--;
+        }
+        if (IsKeyDown(KEY_RIGHT)){
+            mainCam.target.x++;
+        }
+        if (IsKeyDown(KEY_UP)){
+            mainCam.target.y--;
+        }
+        if (IsKeyDown(KEY_DOWN)){
+            mainCam.target.y++;
+        }
 
         BeginDrawing();
-            // You can draw on the screen between BeginDrawing() and EndDrawing()
-            // ...
-            // ...
-            theWorld->draw(false);
-            ClearBackground(WHITE);
-            DrawText(TextFormat("%i",GetFPS()), 10, 10, 30, LIGHTGRAY);
+        BeginMode2D(mainCam);
+        ClearBackground(WHITE);
+        theWorld->draw(false);
+        EndMode2D();
+        DrawText(TextFormat("%i",GetFPS()), 10, 10, 30, LIGHTGRAY);
 
         EndDrawing();
     } // Main game loop end

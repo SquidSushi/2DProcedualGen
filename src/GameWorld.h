@@ -18,9 +18,9 @@ enum block{
 
 class GameWorld {
     block* data;
-    int width;
-    int height;
-    int seed;
+    int width = 1;
+    int height = 1;
+    int seed = 0;
     int groundBase = 16;
     int groundVariance = 112;
     int waterLevel = 64;
@@ -33,7 +33,7 @@ class GameWorld {
     void GenInitialSurface(bool producePictures);
     void FillOcean(bool producePictures);
     Color blockColors[4] = {GetColor(0), GRAY, BROWN, BLUE};
-    int cheapDrawCycle;
+    int cheapDrawCycle = 0;
 
 public:
     GameWorld(int seed, int width, int height);
