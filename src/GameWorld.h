@@ -21,22 +21,31 @@ class GameWorld {
     int width;
     int height;
     int seed;
+    int groundBase = 16;
+    int groundVariance = 112;
+    int waterLevel = 64;
     Image heightMap;
     RenderTexture heightMapTex;
     RenderTexture outputTexture;
     void setBlock(int x, int y, block value);
     block getBlock(int x, int y);
     void genOutputTexture();
-    void GenInitialSurface();
-    void FillUnderGround();
-    void FillOcean();
-
+    void GenInitialSurface(bool producePictures);
+    void FillOcean(bool producePictures);
+    Color blockColors[4] = {GetColor(0), GRAY, BROWN, BLUE};
+    int cheapDrawCycle;
 
 public:
     GameWorld(int seed, int width, int height);
     void draw(bool fullFrame);
+    void drawCheap();
+    void genWorld(bool producePictures);
+    void clearWorld(block with);
 
+    int getSeed();
+    void setSeed(int val);
 
+    void genHeightmap();
 };
 
 

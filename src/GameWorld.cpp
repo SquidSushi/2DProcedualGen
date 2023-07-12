@@ -7,21 +7,44 @@
 GameWorld::GameWorld(int seed, int width, int height) {
     this->width = width;
     this->height = height;
-    this->heightMap = GenImagePerlinNoise(width,1,seed,0,4);
+    //genHeightmap();
     data = new block[width*height];
+    //genWorld(false);
+    clearWorld(block_air);
+
+    //genOutputTexture();
+}
+
+void GameWorld::genHeightmap() {
+    if (IsImageReady(heightMap)){
+        UnloadImage(heightMap);
+    }
+    heightMap = GenImagePerlinNoise(width, 1, seed, 0, 4);
+}
+
+void GameWorld::clearWorld(block with) {
     for (int i = 0; i < width * height; i++){
         data[i] = block_air;
     }
-    GenInitialSurface();
-    FillUnderGround();
-    FillOcean();
+}
 
+void GameWorld::genWorld(bool producePictures) {
+    genHeightmap();
+    clearWorld(block_air);
+    GenInitialSurface(producePictures);
+    FillOcean(producePictures);
     genOutputTexture();
 }
 
-void GameWorld::GenInitialSurface() {
+void GameWorld::GenInitialSurface(bool producePictures) {
     for (int x = 0; x < width; x++){
-        setBlock(x, 32 + 64 * GetImageColor(heightMap, x, 0).r / 256, block_stone);
+        int columnHeight = groundBase + (groundVariance * GetImageColor(heightMap,x,0).r)/256;
+        for (int y = 0; y < columnHeight; y++){
+            setBlock(x,y,block_stone);
+        }
+        if (producePictures){
+            drawCheap();
+        }
     }
 }
 
@@ -30,8 +53,34 @@ void GameWorld::draw(bool fullFrame) {
 
     DrawTextureEx(outputTexture.texture, {}, 0, (GetScreenWidth()/width), WHITE);
 
+    if (IsKeyDown(KEY_L)){
+        for (int column = 0; column < width/16;column++){
+            DrawLine(column*16,0,column*16,height,BLACK);
+        }
+        for (int row = 0; row < height/16; row++){
+            DrawLine(0,row * 16, width, row*16,BLACK);
+        }
+    }
+    //DrawText(TextFormat("%i FPS", GetFPS()),10,10,20,BLACK);
+
     if(fullFrame)EndDrawing();
 }
+ void GameWorld::drawCheap() {
+    if (cheapDrawCycle % 4 == 0){
+    BeginDrawing();
+     ClearBackground(BLACK);
+    for (int y = 0; y< height; y++){
+        for (int x = 0; x < width; x++){
+            if (getBlock(x,y)>block_air)
+            DrawPixel(x,height-y,blockColors[getBlock(x,y)]);
+        }
+    }
+     DrawFPS(0,0);
+    EndDrawing();
+    }
+    cheapDrawCycle++;
+}
+
 
 void GameWorld::setBlock(int x, int y, block value) {
     x %= width; y %= height;
@@ -44,10 +93,10 @@ block GameWorld::getBlock(int x, int y) {
 }
 
 void GameWorld::genOutputTexture() {
-    Color blockColors[4] = {GetColor(0), GRAY, BROWN, BLUE};
-    if (IsTextureReady(outputTexture.texture))
-        UnloadRenderTexture(outputTexture);
-    outputTexture = LoadRenderTexture(width,height);
+
+    if (!IsRenderTextureReady(outputTexture)){
+        outputTexture = LoadRenderTexture(width,height);
+    }
     BeginTextureMode(outputTexture);
     ClearBackground(WHITE);
     DrawRectangleGradientV(0,0,width,height,BLACK,SKYBLUE);
@@ -59,26 +108,25 @@ void GameWorld::genOutputTexture() {
     EndTextureMode();
 }
 
-void GameWorld::FillUnderGround() {
-    for (int x = 0; x < width; x++){
-        bool columnStarted = false;
-        for (int y = height; y>0; y--){
-            if (columnStarted){
-                setBlock(x, y-1, block_stone);
-            }
-            if (getBlock(x,y-1) == block_stone){
-                columnStarted = true;
-            }
-        }
-    }
-}
 
-void GameWorld::FillOcean() {
-    for (int y = 0; y< 64; y++){
+
+void GameWorld::FillOcean(bool producePictures) {
+    for (int y = 0; y< waterLevel; y++){
         for (int x = 0; x <  width; x++){
             if (getBlock(x,y) == block_air){
                 setBlock(x,y,block_water);
             }
         }
+        if (producePictures){
+            drawCheap();
+        }
     }
+}
+
+int GameWorld::getSeed() {
+    return seed;
+}
+
+void GameWorld::setSeed(int val) {
+    this->seed = val;
 }
