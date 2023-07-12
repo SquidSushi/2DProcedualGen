@@ -32,6 +32,7 @@ class GameWorld {
     void genOutputTexture();
     void GenInitialSurface(bool producePictures);
     void FillOcean(bool producePictures);
+    void growDirt(bool producePictures);
     Color blockColors[4] = {GetColor(0), GRAY, BROWN, BLUE};
     int cheapDrawCycle = 0;
 

@@ -18,7 +18,7 @@ int main() {
     SetTargetFPS(60);
     bool doSlowGen;
 
-    while (IsKeyUp(KEY_ENTER)){
+    while (IsKeyUp(KEY_ENTER) && !WindowShouldClose()){
         if (IsKeyPressed(KEY_Y)){
             doSlowGen = true;
         }
@@ -32,7 +32,7 @@ int main() {
         EndDrawing();
     }
     SetRandomSeed(GetRandomValue(0,pow(2,20)));
-    GameWorld* theWorld = new GameWorld(GetRandomValue(0, 1024*1024),GetScreenWidth(),GetScreenHeight());
+    GameWorld* theWorld = new GameWorld(0,GetScreenWidth(),GetScreenHeight());
     SetTargetFPS(0);
     theWorld->genWorld(doSlowGen);
     SetTargetFPS(60);

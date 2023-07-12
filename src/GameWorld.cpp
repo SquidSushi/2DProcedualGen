@@ -2,6 +2,7 @@
 // Created by mrbau on 11.07.2023.
 //
 
+#include <cmath>
 #include "GameWorld.h"
 
 GameWorld::GameWorld(int seed, int width, int height) {
@@ -33,6 +34,7 @@ void GameWorld::genWorld(bool producePictures) {
     clearWorld(block_air);
     GenInitialSurface(producePictures);
     FillOcean(producePictures);
+    growDirt(producePictures);
     genOutputTexture();
 }
 
@@ -72,7 +74,7 @@ void GameWorld::draw(bool fullFrame) {
     for (int y = 0; y< height; y++){
         for (int x = 0; x < width; x++){
             if (getBlock(x,y)>block_air)
-            DrawPixel(x,height-y,blockColors[getBlock(x,y)]);
+            DrawRectangle(x,height-y,1,1,blockColors[getBlock(x,y)]);
         }
     }
      DrawFPS(0,0);
@@ -129,4 +131,20 @@ int GameWorld::getSeed() {
 
 void GameWorld::setSeed(int val) {
     this->seed = val;
+}
+
+void GameWorld::growDirt(bool producePictures) {
+    for (int x = 0; x < width; x++){
+        int remainingColumnDirt = int(4 + float(1.5 * sin(x + seed/16.0) ));
+        for (int y = height-1; y >= 0; y--){
+            block currentBlock = getBlock(x,y);
+            if (currentBlock == block_water)break;
+            if (currentBlock != block_air && remainingColumnDirt > 0){
+                setBlock(x,y,block_dirt);
+                remainingColumnDirt--;
+            }
+            if (remainingColumnDirt <= 0) break;
+        }
+        if (producePictures)drawCheap();
+    }
 }
